@@ -1,15 +1,14 @@
 use color_eyre::eyre::{Ok, Result};
 use ratatui::{
-    DefaultTerminal,
-    crossterm::{
-        event::{self, Event},
-        terminal,
-    },
+    DefaultTerminal, Frame,
+    crossterm::event::{self, Event},
+    widgets::{Paragraph, Widget},
 };
 
 pub fn run(mut terminal: DefaultTerminal) -> Result<()> {
     loop {
         // Rendering
+        terminal.draw(render)?;
 
         // Input handling
         if let Event::Key(key) = event::read()? {
@@ -24,4 +23,8 @@ pub fn run(mut terminal: DefaultTerminal) -> Result<()> {
         }
     }
     Ok(())
+}
+
+pub fn render(frame: &mut Frame) {
+    Paragraph::new("Hello World!").render(frame.area(), frame.buffer_mut());
 }
