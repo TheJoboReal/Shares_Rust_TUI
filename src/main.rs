@@ -1,32 +1,13 @@
-mod share_calc;
-use share_calc::Person;
-use share_calc::debt_calc;
-use share_calc::owed_calc;
+mod tui;
+use tui::run;
 
-fn main() {
-    let mut persons = vec![
-        Person {
-            name: String::from("Kasper"),
-            expences: 100.0,
-            debt: 0.0,
-            owed: 0.0,
-        },
-        Person {
-            name: String::from("Runa"),
-            expences: 200.0,
-            debt: 0.0,
-            owed: 0.0,
-        },
-    ];
+fn main() -> Result<()> {
+    color_eyre::install()?;
 
-    debt_calc(&mut persons);
-    owed_calc(&mut persons);
+    let terminal = ratatui::init();
+    let result = run(terminal);
 
-    println!("Debt and owed calculations:");
-    for person in &persons {
-        println!(
-            "{}: Debt = {}, Owed = {}",
-            person.name, person.debt, person.owed
-        );
-    }
+    ratatui::restore();
+
+    Ok(())
 }
