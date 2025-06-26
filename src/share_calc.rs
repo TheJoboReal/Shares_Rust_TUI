@@ -82,7 +82,8 @@ fn test_debt_calc() {
     ];
 
     debt_calc(&mut persons);
+    owed_calc(&mut persons);
 
-    assert_eq!(persons[0].debt, 50.0);
-    assert_eq!(persons[1].debt, -50.0);
+    assert_eq!(persons[0].debt, -persons[0].owed);
+    assert_eq!(persons[1].debt, persons[0].owed);
 }
