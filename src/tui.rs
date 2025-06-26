@@ -5,6 +5,13 @@ use ratatui::{
     widgets::{Paragraph, Widget},
 };
 
+use crate::share_calc::Person;
+
+#[derive(Debug, Default)]
+struct AppState {
+    items: Vec<Person>,
+}
+
 pub fn run(mut terminal: DefaultTerminal) -> Result<()> {
     loop {
         // Rendering

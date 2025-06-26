@@ -1,3 +1,4 @@
+mod share_calc;
 mod tui;
 use tui::run;
 

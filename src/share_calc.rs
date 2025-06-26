@@ -1,34 +1,35 @@
+#[derive(Debug, Default)]
 pub struct Person {
-    pub name: String,
-    pub expences: f32,
-    pub debt: f32,
-    pub owed: f32,
+    pub _name: String,
+    pub _expences: f32,
+    pub _debt: f32,
+    pub _owed: f32,
 }
 
-pub fn debt_calc(persons: &mut Vec<Person>) {
+pub fn _debt_calc(persons: &mut Vec<Person>) {
     let mut total_exp: f32 = 0.0;
 
     for p in &mut *persons {
-        total_exp += p.expences;
+        total_exp += p._expences;
     }
 
-    let debt_pr_person = total_exp / persons.len() as f32;
+    let _debt_pr_person = total_exp / persons.len() as f32;
 
     for p in persons.iter_mut() {
-        p.debt = debt_pr_person - p.expences;
+        p._debt = _debt_pr_person - p._expences;
     }
 }
 
-pub fn owed_calc(persons: &mut Vec<Person>) {
+pub fn _owed_calc(persons: &mut Vec<Person>) {
     let mut total_owed: f32 = 0.0;
 
     for p in &mut *persons {
-        total_owed += p.expences;
+        total_owed += p._expences;
     }
 
-    let owed_pr_person = total_owed / persons.len() as f32;
+    let _owed_pr_person = total_owed / persons.len() as f32;
     for p in persons.iter_mut() {
-        p.owed = p.expences - owed_pr_person;
+        p._owed = p._expences - _owed_pr_person;
     }
 }
 
@@ -38,52 +39,52 @@ pub fn owed_calc(persons: &mut Vec<Person>) {
 fn test_owed_calc() {
     let mut persons = vec![
         Person {
-            name: String::from("Kasper"),
-            expences: 100.0,
-            debt: 0.0,
-            owed: 0.0,
+            _name: String::from("Kasper"),
+            _expences: 100.0,
+            _debt: 0.0,
+            _owed: 0.0,
         },
         Person {
-            name: String::from("Runa"),
-            expences: 300.0,
-            debt: 0.0,
-            owed: 0.0,
+            _name: String::from("Runa"),
+            _expences: 300.0,
+            _debt: 0.0,
+            _owed: 0.0,
         },
         Person {
-            name: String::from("Camilla"),
-            expences: 200.0,
-            debt: 0.0,
-            owed: 0.0,
+            _name: String::from("Camilla"),
+            _expences: 200.0,
+            _debt: 0.0,
+            _owed: 0.0,
         },
     ];
 
-    owed_calc(&mut persons);
+    _owed_calc(&mut persons);
 
-    assert_eq!(persons[0].owed, -100.0);
-    assert_eq!(persons[1].owed, 100.0);
-    assert_eq!(persons[2].owed, 0.0);
+    assert_eq!(persons[0]._owed, -100.0);
+    assert_eq!(persons[1]._owed, 100.0);
+    assert_eq!(persons[2]._owed, 0.0);
 }
 
 #[test]
 fn test_debt_calc() {
     let mut persons = vec![
         Person {
-            name: String::from("Kasper"),
-            expences: 100.0,
-            debt: 0.0,
-            owed: 0.0,
+            _name: String::from("Kasper"),
+            _expences: 100.0,
+            _debt: 0.0,
+            _owed: 0.0,
         },
         Person {
-            name: String::from("Runa"),
-            expences: 200.0,
-            debt: 0.0,
-            owed: 0.0,
+            _name: String::from("Runa"),
+            _expences: 200.0,
+            _debt: 0.0,
+            _owed: 0.0,
         },
     ];
 
-    debt_calc(&mut persons);
-    owed_calc(&mut persons);
+    _debt_calc(&mut persons);
+    _owed_calc(&mut persons);
 
-    assert_eq!(persons[0].debt, -persons[0].owed);
-    assert_eq!(persons[1].debt, persons[0].owed);
+    assert_eq!(persons[0]._debt, -persons[0]._owed);
+    assert_eq!(persons[1]._debt, persons[0]._owed);
 }
