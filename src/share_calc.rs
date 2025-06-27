@@ -4,6 +4,7 @@ pub struct Person {
     pub _expences: f32,
     pub _debt: f32,
     pub _owed: f32,
+    pub _settled: bool,
 }
 
 pub fn _debt_calc(persons: &mut Vec<Person>) {
@@ -43,18 +44,21 @@ fn test_owed_calc() {
             _expences: 100.0,
             _debt: 0.0,
             _owed: 0.0,
+            _settled: false,
         },
         Person {
             _name: String::from("Runa"),
             _expences: 300.0,
             _debt: 0.0,
             _owed: 0.0,
+            _settled: false,
         },
         Person {
             _name: String::from("Camilla"),
             _expences: 200.0,
             _debt: 0.0,
             _owed: 0.0,
+            _settled: false,
         },
     ];
 
@@ -73,12 +77,14 @@ fn test_debt_calc() {
             _expences: 100.0,
             _debt: 0.0,
             _owed: 0.0,
+            _settled: false,
         },
         Person {
             _name: String::from("Runa"),
             _expences: 200.0,
             _debt: 0.0,
             _owed: 0.0,
+            _settled: false,
         },
     ];
 
