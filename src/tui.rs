@@ -14,6 +14,7 @@ pub struct AppState {
     pub items: Vec<Person>,
     pub list_state: ListState,
     pub is_add_new: bool,
+    pub input_value: String,
 }
 
 pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()> {
@@ -22,14 +23,41 @@ pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()
         terminal.draw(|f| render(f, app_state))?;
 
         if let Event::Key(key) = event::read()? {
-            if handle_key(key, app_state) {
-                break;
+            if app_state.is_add_new {
+                if handle_add_new(key, app_state) {
+                    app_state.is_add_new = false;
+                }
+            } else {
+                if handle_key(key, app_state) {
+                    break;
+                }
             }
         }
 
         // Input handling
     }
     Ok(())
+}
+
+fn handle_add_new(key: KeyEvent, app_state: &mut AppState) -> bool {
+    match key.code {
+        event::KeyCode::Char(c) => {
+            app_state.input_value.push(c);
+        }
+        event::KeyCode::Backspace => {
+            app_state.input_value.pop();
+        }
+        event::KeyCode::Esc => {
+            return true;
+        }
+        event::KeyCode::Enter => {
+            return true;
+        }
+        _ => {
+            // Handle other keys for adding new item
+        }
+    }
+    false
 }
 
 fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
@@ -48,6 +76,9 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
                 app_state.items.remove(index);
             }
         }
+        event::KeyCode::Char('A') => {
+            app_state.is_add_new = true;
+        }
         _ => {
             // Handle other keys
         }
@@ -56,29 +87,31 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
 }
 
 pub fn render(frame: &mut Frame, app_state: &mut AppState) {
-    let [border_area] = Layout::vertical([Constraint::Fill(1)])
-        .margin(1)
-        .areas(frame.area());
+    if app_state.is_add_new {
+        Paragraph::new(app_state.input_value.as_str()).render(frame.area(), frame.buffer_mut());
+    } else {
+        let [border_area] = Layout::vertical([Constraint::Fill(1)])
+            .margin(1)
+            .areas(frame.area());
 
-    let [inner_area] = Layout::vertical([Constraint::Fill(1)])
-        .margin(1)
-        .areas(border_area);
+        let [inner_area] = Layout::vertical([Constraint::Fill(1)])
+            .margin(1)
+            .areas(border_area);
 
-    Block::bordered()
-        .border_type(ratatui::widgets::BorderType::Rounded)
-        .fg(Color::Yellow)
-        .render(border_area, frame.buffer_mut());
+        Block::bordered()
+            .border_type(ratatui::widgets::BorderType::Rounded)
+            .fg(Color::Yellow)
+            .render(border_area, frame.buffer_mut());
 
-    let list = List::new(
-        app_state
-            .items
-            .iter()
-            .map(|x| ListItem::from(x._name.clone())),
-    )
-    .highlight_symbol(">")
-    .highlight_style(Style::default().fg(Color::Green));
+        let list = List::new(
+            app_state
+                .items
+                .iter()
+                .map(|x| ListItem::from(x._name.clone())),
+        )
+        .highlight_symbol(">")
+        .highlight_style(Style::default().fg(Color::Green));
 
-    frame.render_stateful_widget(list, inner_area, &mut app_state.list_state);
-
-    //Paragraph::new("Hello World!").render(frame.area(), frame.buffer_mut());
+        frame.render_stateful_widget(list, inner_area, &mut app_state.list_state);
+    }
 }
