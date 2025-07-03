@@ -6,6 +6,7 @@ use ratatui::{
     style::{Color, Style, Stylize},
     widgets::{Block, List, ListItem, ListState, Paragraph, Widget, BorderType, Padding},
 };
+use ratatui::text::ToSpan;
 
 use crate::share_calc::Person;
 
@@ -134,6 +135,7 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
 
         Block::bordered()
             .border_type(ratatui::widgets::BorderType::Rounded)
+            .title(" ShareCalc ")
             .fg(Color::Yellow)
             .render(border_area, frame.buffer_mut());
 
@@ -141,8 +143,14 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
             app_state
                 .items
                 .iter()
-                .map(|x| ListItem::from(x._name.clone())),
-        )
+            .map(|x| {
+                let status = if x._settled {
+                    x._name.crossed_out()
+                } else {
+                    x._name.to_span()
+                ListItem::from(status)
+                };
+            }))
         .highlight_symbol(">")
         .highlight_style(Style::default().fg(Color::Green));
 
