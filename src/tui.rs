@@ -17,6 +17,12 @@ pub struct AppState {
     pub input_value: String,
 }
 
+enum FormAction {
+    None,
+    Submit,
+    Escape,
+}
+
 pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()> {
     loop {
         // Rendering
@@ -24,13 +30,26 @@ pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()
 
         if let Event::Key(key) = event::read()? {
             if app_state.is_add_new {
-                if handle_add_new(key, app_state) {
-                    app_state.is_add_new = false;
+                match handle_add_new(key, app_state) {
+                    FormAction::Escape => {
+                        app_state.is_add_new = false;
+                        app_state.input_value.clear();},
+
+                    FormAction::Submit => {
+                        app_state.is_add_new = false;
+                        app_state.items.push(Person { 
+                            _settled: false,
+                            _expences: 0.0,
+                            _debt: 0.0,
+                            _owed: 0.0,
+                            _name: app_state.input_value.clone()
+                        });
+                        app_state.input_value.clear();
+                    }
+                    FormAction::None => {}
                 }
-            } else {
-                if handle_key(key, app_state) {
-                    break;
-                }
+            } else if handle_key(key, app_state) {
+                break;
             }
         }
 
@@ -39,7 +58,7 @@ pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()
     Ok(())
 }
 
-fn handle_add_new(key: KeyEvent, app_state: &mut AppState) -> bool {
+fn handle_add_new(key: KeyEvent, app_state: &mut AppState) -> FormAction {
     match key.code {
         event::KeyCode::Char(c) => {
             app_state.input_value.push(c);
@@ -48,16 +67,16 @@ fn handle_add_new(key: KeyEvent, app_state: &mut AppState) -> bool {
             app_state.input_value.pop();
         }
         event::KeyCode::Esc => {
-            return true;
+            return FormAction::Escape;
         }
         event::KeyCode::Enter => {
-            return true;
+            return FormAction::Submit;
         }
         _ => {
             // Handle other keys for adding new item
         }
     }
-    false
+    FormAction::None
 }
 
 fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
