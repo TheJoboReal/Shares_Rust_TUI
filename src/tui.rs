@@ -84,6 +84,13 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
         event::KeyCode::Esc => {
             return true;
         }
+        event::KeyCode::Enter => {
+            if let Some(index) = app_state.list_state.selected() {
+                if let Some(item) = app_state.items.get_mut(index) {
+                    item._settled = !item._settled;
+                }
+            }
+        }
         event::KeyCode::Char('k') => {
             app_state.list_state.select_previous();
         }
@@ -113,8 +120,8 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
         Paragraph::new(app_state.input_value.as_str())
             .block(
                 Block::bordered()
-                .title(" Input Name ")
                 .fg(Color::Green)
+                .title(" Input Name ")
                 .padding(Padding::uniform(1))
                 .border_type(BorderType::Rounded),
                 )
