@@ -4,7 +4,7 @@ use ratatui::{
     crossterm::event::{self, Event, KeyEvent},
     layout::{Constraint, Layout},
     style::{Color, Style, Stylize},
-    widgets::{Block, List, ListItem, ListState, Paragraph, Widget},
+    widgets::{Block, List, ListItem, ListState, Paragraph, Widget, BorderType, Padding},
 };
 
 use crate::share_calc::Person;
@@ -106,12 +106,20 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
 }
 
 pub fn render(frame: &mut Frame, app_state: &mut AppState) {
+    let [border_area] = Layout::vertical([Constraint::Fill(1)])
+        .margin(1)
+        .areas(frame.area());
     if app_state.is_add_new {
-        Paragraph::new(app_state.input_value.as_str()).render(frame.area(), frame.buffer_mut());
+        Paragraph::new(app_state.input_value.as_str())
+            .block(
+                Block::bordered()
+                .title(" Input Name ")
+                .fg(Color::Green)
+                .padding(Padding::uniform(1))
+                .border_type(BorderType::Rounded),
+                )
+                .render(border_area, frame.buffer_mut());
     } else {
-        let [border_area] = Layout::vertical([Constraint::Fill(1)])
-            .margin(1)
-            .areas(frame.area());
 
         let [inner_area] = Layout::vertical([Constraint::Fill(1)])
             .margin(1)
