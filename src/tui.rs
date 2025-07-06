@@ -16,6 +16,7 @@ pub struct AppState {
     pub items: Vec<Person>,
     pub list_state: ListState,
     pub is_add_new: bool,
+    pub debt_input: bool,
     pub input_value: String,
     pub input_debt: String,
 }
@@ -52,6 +53,23 @@ pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()
                     }
                     FormAction::None => {}
                 }
+            } else if app_state.debt_input {
+                match handle_add_new(key, app_state) {
+                    FormAction::Escape => {
+                        app_state.debt_input = false;
+                        app_state.input_debt.clear();
+                    }
+                    FormAction::Submit => {
+                        app_state.debt_input = false;
+                        if let Some(index) = app_state.list_state.selected() {
+                            if let Some(item) = app_state.items.get_mut(index) {
+                                item._expences = app_state.input_debt.parse().unwrap_or(0.0);
+                            }
+                        }
+                        app_state.input_debt.clear();
+                    }
+                    FormAction::None => {}
+                }
             } else if handle_key(key, app_state) {
                 break;
             }
@@ -83,12 +101,6 @@ fn handle_add_new(key: KeyEvent, app_state: &mut AppState) -> FormAction {
     FormAction::None
 }
 
-fn set_expenses(app_state: &mut AppState, index: usize) {
-    if let Some(item) = app_state.items.get_mut(index) {
-        item._expences = app_state.input_debt.parse().unwrap_or(0.0);
-    }
-}
-
 fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
     match key.code {
         event::KeyCode::Esc => {
@@ -105,7 +117,7 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
             app_state.list_state.select_previous();
         }
         event::KeyCode::Char('r') => {
-            set_expenses(app_state, app_state.list_state.selected().unwrap_or(0));
+            app_state.debt_input = true;
         }
         event::KeyCode::Char('j') => {
             app_state.list_state.select_next();
@@ -128,7 +140,7 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
 pub fn render(frame: &mut Frame, app_state: &mut AppState) {
     let [main_area, bottom_area] = Layout::vertical([
         Constraint::Fill(3),    // Main takes up most space
-        Constraint::Length(10), // Bottom takes fixed height
+        Constraint::Length(15), // Bottom takes fixed height
     ])
     .margin(1)
     .areas(frame.area());
@@ -139,6 +151,16 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
                 Block::bordered()
                     .fg(Color::Green)
                     .title(" Input Name ")
+                    .padding(Padding::uniform(1))
+                    .border_type(BorderType::Rounded),
+            )
+            .render(main_area, frame.buffer_mut());
+    } else if app_state.debt_input {
+        Paragraph::new(app_state.input_debt.as_str())
+            .block(
+                Block::bordered()
+                    .fg(Color::Green)
+                    .title(" Input Debt ")
                     .padding(Padding::uniform(1))
                     .border_type(BorderType::Rounded),
             )
