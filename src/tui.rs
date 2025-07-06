@@ -17,6 +17,7 @@ pub struct AppState {
     pub list_state: ListState,
     pub is_add_new: bool,
     pub input_value: String,
+    pub input_debt: String,
 }
 
 enum FormAction {
@@ -44,7 +45,7 @@ pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()
                             _settled: false,
                             _expences: 0.0,
                             _debt: 0.0,
-                            _owed: 0.0,
+                            _owed: app_state.input_debt,
                             _name: app_state.input_value.clone(),
                         });
                         app_state.input_value.clear();
@@ -82,6 +83,29 @@ fn handle_add_new(key: KeyEvent, app_state: &mut AppState) -> FormAction {
     FormAction::None
 }
 
+fn handle_debt_input(key: KeyEvent, app_state: &mut AppState) -> FormAction {
+    match key.code {
+        event::KeyCode::Char(c) => {
+            app_state.input_debt.push(c);
+        }
+        event::KeyCode::Backspace => {
+            app_state.input_debt.pop();
+        }
+        event::KeyCode::Esc => {
+            return FormAction::Escape;
+        }
+        event::KeyCode::Enter => {
+            // Change input_debt to float
+            let app_state.item._debt: f32 = app_state.input_debt.parse().unwrap();
+            return FormAction::Submit;
+        }
+        _ => {
+            // Handle other keys for adding new item
+        }
+    }
+    FormAction::None
+}
+
 fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
     match key.code {
         event::KeyCode::Esc => {
@@ -96,6 +120,9 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
         }
         event::KeyCode::Char('k') => {
             app_state.list_state.select_previous();
+        }
+        event::KeyCode::Char('r') => {
+            app_state.input_debt;
         }
         event::KeyCode::Char('j') => {
             app_state.list_state.select_next();
