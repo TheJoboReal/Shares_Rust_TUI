@@ -4,10 +4,11 @@ use ratatui::{
     crossterm::event::{self, Event, KeyEvent},
     layout::{Constraint, Layout},
     style::{Color, Style, Stylize},
-    widgets::{Block, List, ListItem, ListState, Paragraph, Widget, BorderType, Padding},
     text::Span,
+    widgets::{Block, BorderType, List, ListItem, ListState, Padding, Paragraph, Widget},
 };
 
+use crate::share_calc::_owed_calc;
 use crate::share_calc::Person;
 
 #[derive(Debug, Default)]
@@ -34,16 +35,17 @@ pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()
                 match handle_add_new(key, app_state) {
                     FormAction::Escape => {
                         app_state.is_add_new = false;
-                        app_state.input_value.clear();},
+                        app_state.input_value.clear();
+                    }
 
                     FormAction::Submit => {
                         app_state.is_add_new = false;
-                        app_state.items.push(Person { 
+                        app_state.items.push(Person {
                             _settled: false,
                             _expences: 0.0,
                             _debt: 0.0,
                             _owed: 0.0,
-                            _name: app_state.input_value.clone()
+                            _name: app_state.input_value.clone(),
                         });
                         app_state.input_value.clear();
                     }
@@ -115,8 +117,8 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
 
 pub fn render(frame: &mut Frame, app_state: &mut AppState) {
     let [main_area, bottom_area] = Layout::vertical([
-        Constraint::Fill(3),  // Main takes up most space
-        Constraint::Length(5), // Bottom takes fixed height
+        Constraint::Fill(3),    // Main takes up most space
+        Constraint::Length(10), // Bottom takes fixed height
     ])
     .margin(1)
     .areas(frame.area());
@@ -157,12 +159,41 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
     }
 
     // Render bottom panel
-    Paragraph::new("This is the bottom area.")
+    Paragraph::new(" What is owed ")
         .block(
             Block::bordered()
-                .title(" Extra Panel ")
                 .fg(Color::Cyan)
                 .border_type(BorderType::Rounded),
         )
         .render(bottom_area, frame.buffer_mut());
+
+    let debt_list = List::new(
+        app_state
+            .items
+            .iter()
+            .map(|x| Span::raw(format!("{} is owed: {}", x._name, x._owed))),
+    );
+
+    let list_height = app_state.items.len().min(bottom_area.height as usize) as u16;
+    let list_width = bottom_area.width.min(
+        app_state
+            .items
+            .iter()
+            .map(|x| format!("{} ({})", x._name, x._owed).len() as u16)
+            .max()
+            .unwrap_or(0)
+            + 10,
+    );
+    let horizontal_offset = (bottom_area.width.saturating_sub(list_width)) / 2;
+    let vertical_offset = (bottom_area.height.saturating_sub(list_height)) / 2;
+    let centered_area = ratatui::layout::Rect {
+        x: bottom_area.x + horizontal_offset,
+        y: bottom_area.y + vertical_offset,
+        width: list_width,
+        height: list_height,
+    };
+
+    _owed_calc(&mut app_state.items);
+
+    frame.render_stateful_widget(debt_list, centered_area, &mut app_state.list_state);
 }
