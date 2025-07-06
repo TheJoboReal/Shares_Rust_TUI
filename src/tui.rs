@@ -114,30 +114,33 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
 }
 
 pub fn render(frame: &mut Frame, app_state: &mut AppState) {
-    let [border_area] = Layout::vertical([Constraint::Fill(1)])
-        .margin(1)
-        .areas(frame.area());
+    let [main_area, bottom_area] = Layout::vertical([
+        Constraint::Fill(3),  // Main takes up most space
+        Constraint::Length(5), // Bottom takes fixed height
+    ])
+    .margin(1)
+    .areas(frame.area());
+
     if app_state.is_add_new {
         Paragraph::new(app_state.input_value.as_str())
             .block(
                 Block::bordered()
-                .fg(Color::Green)
-                .title(" Input Name ")
-                .padding(Padding::uniform(1))
-                .border_type(BorderType::Rounded),
-                )
-                .render(border_area, frame.buffer_mut());
+                    .fg(Color::Green)
+                    .title(" Input Name ")
+                    .padding(Padding::uniform(1))
+                    .border_type(BorderType::Rounded),
+            )
+            .render(main_area, frame.buffer_mut());
     } else {
-
+        // Split main_area further for content and styling
         let [inner_area] = Layout::vertical([Constraint::Fill(1)])
             .margin(1)
-            .areas(border_area);
+            .areas(main_area);
 
         Block::bordered()
             .border_type(BorderType::Rounded)
-            //.title(" ShareCalc ")
             .fg(Color::Yellow)
-            .render(border_area, frame.buffer_mut());
+            .render(main_area, frame.buffer_mut());
 
         let list = List::new(app_state.items.iter().map(|x| {
             let status = if x._settled {
@@ -152,4 +155,14 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
 
         frame.render_stateful_widget(list, inner_area, &mut app_state.list_state);
     }
+
+    // Render bottom panel
+    Paragraph::new("This is the bottom area.")
+        .block(
+            Block::bordered()
+                .title(" Extra Panel ")
+                .fg(Color::Cyan)
+                .border_type(BorderType::Rounded),
+        )
+        .render(bottom_area, frame.buffer_mut());
 }
