@@ -16,9 +16,8 @@ pub struct AppState {
     pub items: Vec<Person>,
     pub list_state: ListState,
     pub is_add_new: bool,
-    pub debt_input: bool,
+    pub is_debt_input: bool,
     pub input_value: String,
-    pub input_debt: String,
 }
 
 enum FormAction {
@@ -53,20 +52,21 @@ pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()
                     }
                     FormAction::None => {}
                 }
-            } else if app_state.debt_input {
+            } else if app_state.is_debt_input {
                 match handle_add_new(key, app_state) {
                     FormAction::Escape => {
-                        app_state.debt_input = false;
-                        app_state.input_debt.clear();
+                        app_state.is_debt_input = false;
+                        app_state.input_value.clear();
                     }
                     FormAction::Submit => {
-                        app_state.debt_input = false;
+                        app_state.is_debt_input = false;
                         if let Some(index) = app_state.list_state.selected() {
                             if let Some(item) = app_state.items.get_mut(index) {
-                                item._expences = app_state.input_debt.parse().unwrap_or(0.0);
+                                item._expences = app_state.input_value.parse().unwrap_or(0.0);
                             }
                         }
-                        app_state.input_debt.clear();
+                        app_state.input_value.clear();
+                        _owed_calc(&mut app_state.items);
                     }
                     FormAction::None => {}
                 }
@@ -117,7 +117,7 @@ fn handle_key(key: KeyEvent, app_state: &mut AppState) -> bool {
             app_state.list_state.select_previous();
         }
         event::KeyCode::Char('r') => {
-            app_state.debt_input = true;
+            app_state.is_debt_input = true;
         }
         event::KeyCode::Char('j') => {
             app_state.list_state.select_next();
@@ -155,8 +155,8 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
                     .border_type(BorderType::Rounded),
             )
             .render(main_area, frame.buffer_mut());
-    } else if app_state.debt_input {
-        Paragraph::new(app_state.input_debt.as_str())
+    } else if app_state.is_debt_input {
+        Paragraph::new(app_state.input_value.as_str())
             .block(
                 Block::bordered()
                     .fg(Color::Green)
