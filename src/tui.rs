@@ -29,6 +29,7 @@ enum FormAction {
 pub fn run(mut terminal: DefaultTerminal, app_state: &mut AppState) -> Result<()> {
     loop {
         // Rendering
+        _owed_calc(&mut app_state.items);
         terminal.draw(|f| render(f, app_state))?;
 
         if let Event::Key(key) = event::read()? {
@@ -214,7 +215,7 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
             .map(|x| format!("{} ({})", x._name, x._owed).len() as u16)
             .max()
             .unwrap_or(0)
-            + 10,
+            + 20,
     );
     let horizontal_offset = (bottom_area.width.saturating_sub(list_width)) / 2;
     let vertical_offset = (bottom_area.height.saturating_sub(list_height)) / 2;
