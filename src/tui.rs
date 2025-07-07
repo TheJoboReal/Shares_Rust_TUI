@@ -175,6 +175,7 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
         Block::bordered()
             .border_type(BorderType::Rounded)
             .fg(Color::Yellow)
+            .title(" Share Calculator ")
             .render(main_area, frame.buffer_mut());
 
         let list = List::new(app_state.items.iter().map(|x| {
@@ -196,16 +197,17 @@ pub fn render(frame: &mut Frame, app_state: &mut AppState) {
         .block(
             Block::bordered()
                 .fg(Color::Cyan)
+                .title_bottom("key: j/k to navigate, A to add new person, r to input debt, D to delete person, Enter to cross out person")
                 .border_type(BorderType::Rounded),
         )
         .render(bottom_area, frame.buffer_mut());
 
-    let debt_list = List::new(
-        app_state
-            .items
-            .iter()
-            .map(|x| Span::raw(format!("{} is owed: {}", x._name, x._owed))),
-    );
+    let debt_list = List::new(app_state.items.iter().map(|x| {
+        Span::raw(format!(
+            "{} Expences: {}, owed: {}",
+            x._name, x._expences, x._owed
+        ))
+    }));
 
     let list_height = app_state.items.len().min(bottom_area.height as usize) as u16;
     let list_width = bottom_area.width.min(
