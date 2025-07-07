@@ -4,5 +4,5 @@ This tool is a share calculator that can calculate expences for a group of peopl
 
 #### TODO
 
--[ ] Add more advanced calculator.
--[ ] Clean up UI.
+- [ ] Add more advanced calculator.
+- [ ] Clean up UI.
